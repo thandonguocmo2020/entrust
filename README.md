@@ -219,32 +219,40 @@ Nhờ `HasRole` trait  điều này sẽ thực hiện dễ dàng giống như :
 $user = User::where('username', '=', 'michele')->first();
 
 // gán vai trò 
+
 $user->attachRole($admin); // tham số có thể là một đối tượng Role object, array mảng, hoặc id
+
+ví dụ : 
+        $user = User::where('name', '=', 'Hoang Hiep')->first();
+	    $admin = Role::where('name','=','admin')->first();
+	    $user->attachRole($admin);
 
 // hoặc sử dụng kĩ thuật eloquent's 
 $user->roles()->attach($admin->id); // chỉ cần id
 ```
 
-Bây giờ chúng ta chỉ cần thêm quyền cho các object vai trò `Roles`.
+Bây giờ chúng ta chỉ cần gán quyền cho các user có vai trò phù hợp `Roles`.
 
 ```php
 $createPost = new Permission();
 $createPost->name         = 'create-post';
 $createPost->display_name = 'Create Posts'; // optional
-// Allow a user to...
-$createPost->description  = 'create new blog posts'; // optional
+// Cho phép người dùng ...
+$createPost->description  = 'tạo bài viết blog mới'; // optional
 $createPost->save();
 
 $editUser = new Permission();
 $editUser->name         = 'edit-user';
 $editUser->display_name = 'Edit Users'; // optional
-// Allow a user to...
-$editUser->description  = 'edit existing users'; // optional
+// Cho phép người dùng...
+$editUser->description  = 'chỉnh sửa người dùng hiện tại'; // optional
 $editUser->save();
 
+// áp dụng quyền cho admin
 $admin->attachPermission($createPost);
 // equivalent to $admin->perms()->sync(array($createPost->id));
 
+// áp dụng quyền 1 mảng quyền hạn cho người chủ nhận
 $owner->attachPermissions(array($createPost, $editUser));
 // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
 ```
@@ -254,7 +262,9 @@ $owner->attachPermissions(array($createPost, $editUser));
 
 #### Checking for Roles & Permissions
 
-Now we can check for roles and permissions simply by doing:
+Kiểm tra vai trò của user và quyền hạn
+
+Bây giờ chúng ta có thể kiểm tra đơn giản bằng cách làm :
 
 ```php
 $user->hasRole('owner');   // false
@@ -263,69 +273,81 @@ $user->can('edit-user');   // false
 $user->can('create-post'); // true
 ```
 
-Both `hasRole()` and `can()` can receive an array of roles & permissions to check:
+Cả hai  `hasRole()` và  `can()` có thể nhận được một mảng vai trò và quyền hạn của vai trò để kiểm tra :
 
 ```php
+// trả về user có vai trò nếu đúng
 $user->hasRole(['owner', 'admin']);       // true
+
+// trả về user có quyền hạn nếu đúng
 $user->can(['edit-user', 'create-post']); // true
 ```
+Theo mặc định , nếu có những vai trò hay quyền được áp dụng cho người sử dụng thì các phương thức này sẽ trả lại kết quả true.
 
-By default, if any of the roles or permissions are present for a user then the method will return true.
-Passing `true` as a second parameter instructs the method to require **all** of the items:
+Đi qua tham số thứ 2 với true để chỉ định cho phương pháp phủ định nếu có các quyền và vai trò phù hợp.
 
 ```php
 $user->hasRole(['owner', 'admin']);             // true
-$user->hasRole(['owner', 'admin'], true);       // false, user does not have admin role
+$user->hasRole(['owner', 'admin'], true);       // false, người dùng không có vai trò admin
 $user->can(['edit-user', 'create-post']);       // true
-$user->can(['edit-user', 'create-post'], true); // false, user does not have edit-user permission
+$user->can(['edit-user', 'create-post'], true); // false, người sử dụng không có quyền edit-user
 ```
 
-You can have as many `Role`s as you want for each `User` and vice versa.
+Bạn có thể có nhiều vai trò `Role` cho mỗi `User` và ngược lại. 
 
-The `Entrust` class has shortcuts to both `can()` and `hasRole()` for the currently logged in user:
+
+Các class  `Entrust` có phím tắt facede để kiểm tra cho quyền  `can()` và vai trò phù hợp `hasRole()` khi user đã đăng nhập sử dụng.
 
 ```php
 Entrust::hasRole('role-name');
 Entrust::can('permission-name');
 
-// is identical to
+// Điều này giống như kiểm  tra xác thực user có vai trò và quyền ... 
 
 Auth::user()->hasRole('role-name');
 Auth::user()->can('permission-name);
 ```
 
-You can also use placeholders (wildcards) to check any matching permission by doing:
+Bạn có thể sử dụng "kí hiệu" cho phép kiểm tra tất cả vai trò hoặc quyền hạn của user bằng  kí tự thay thế  :
 
 ```php
-// match any admin permission
+// phù hợp tất cả admin quyền 
 $user->can("admin.*"); // true
 
-// match any permission about users
+
+
+// phù hợp với tất cả quyền làm việc với users như thêm chỉnh sửa xóa
 $user->can("*_users"); // true
 ```
 
 
 #### User ability
 
-More advanced checking can be done using the awesome `ability` function.
-It takes in three parameters (roles, permissions, options):
-- `roles` is a set of roles to check.
-- `permissions` is a set of permissions to check.
+Khả năng của người dùng
 
-Either of the roles or permissions variable can be a comma separated string or array:
+Nhiều kiểm tra sử dụng tiên tiến phương pháp  function 'ability`
+
+Nó cần có 3 tham số trong để làm việc (roles, permissions, options):
+
+- `roles` là một tập các vai trò cần kiểm tra
+- `permissions`là một bộ quyền hạn cần kiểm tra
+
+Vai trò và quyền có thể được tách nhau bằng dấu phẩy trong 1 mảng. 
+
+ví dụ : 
 
 ```php
 $user->ability(array('admin', 'owner'), array('create-post', 'edit-user'));
 
-// or
+// hoặc
 
 $user->ability('admin,owner', 'create-post,edit-user');
 ```
 
-This will check whether the user has any of the provided roles and permissions.
-In this case it will return true since the user is an `admin` and has the `create-post` permission.
+mình sẽ kiểm tra xem người dùng có bất kỳ vai trò và quyền cung cấp sau :
+Trong trường hợp này, nó sẽ return true khi  user là một `admin` và có quyền `create-post`.
 
-The third parameter is an options array:
+Tham số thứ ba là một mảng tùy chọn :
 
 ```php
 $options = array(
@@ -334,10 +356,11 @@ $options = array(
 );
 ```
 
-- `validate_all` is a boolean flag to set whether to check all the values for true, or to return true if at least one role or permission is matched.
-- `return_type` specifies whether to return a boolean, array of checked values, or both in an array.
+- `validate_all` là một thiết lập yêu cầu kiểm tra tất cả các giá trị ít nhất 1 giá trị trả về đúng sẽ có kết quả đúng. mặc định là false.
+ 
+- `return_type` Chỉ rõ kiểu kết quả trả về là bloolean hoặc một mảng hoặc cả 2 mặc định là boolean
 
-Here is an example output:
+Dưới đây là một ví dụ :
 
 ```php
 $options = array(
@@ -363,41 +386,46 @@ var_dump($allValidations);
 // }
 
 ```
-The `Entrust` class has a shortcut to `ability()` for the currently logged in user:
+Các class  `Entrust` có một orm phương pháp  `ability()` người sử dụng hiện đăng đăng nhập :
 
 ```php
 Entrust::ability('admin,owner', 'create-post,edit-user');
 
-// is identical to
+// giống hệt
 
 Auth::user()->ability('admin,owner', 'create-post,edit-user');
 ```
 
 ### Blade templates
 
-Three directives are available for use within your Blade templates. What you give as the directive arguments will be directly passed to the corresponding `Entrust` function.
+Các chỉ thỉ sẵn có để kiểm tra trong các file lade templates 
+
+Three directives are available for use within your Blade templates. Những gì bạn cần là thêm  các đối số chỉ thị sẽ được đăng trực tiếp đến tham số  `Entrust` function.
 
 ```php
 @role('admin')
-    <p>This is visible to users with the admin role. Gets translated to 
+    <p>Điều này là hiển thị cho người sử dụng với vai trò admin. Được dịch sang 
     \Entrust::role('admin')</p>
 @endrole
 
 @permission('manage-admins')
-    <p>This is visible to users with the given permissions. Gets translated to 
-    \Entrust::can('manage-admins'). The @can directive is already taken by core 
-    laravel authorization package, hence the @permission directive instead.</p>
+    <p>Điều này là hiển thị cho người sử dụng với quyền hạn nhất định. Được dịch sang 
+    \Entrust::can('manage-admins'). Chỉ thị @can đã được dùng bởi lõi
+       laravel phép gói, do đó chỉ thị @permission thay thế</p>
 @endpermission
 
 @ability('admin,owner', 'create-post,edit-user')
-    <p>This is visible to users with the given abilities. Gets translated to 
+    <p>Điều này là hiển thị cho người sử dụng với các khả năng nhất định. Được dịch sang 
     \Entrust::ability('admin,owner', 'create-post,edit-user')</p>
 @endability
 ```
 
 ### Middleware
 
-You can use a middleware to filter routes and route groups by permission or role
+Bạn có thể sử dụng một trung gian để lọc các tuyến đường và các nhóm đường bởi quyền hạn hoặc vai trò
+
+của người sử dụng phù hợp :
+
 ```php
 Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function() {
     Route::get('/', 'AdminController@welcome');
@@ -405,60 +433,70 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function() {
 });
 ```
 
-It is possible to use pipe symbol as *OR* operator:
+có thể sử dụng các kí hiệu | để ám chỉ or hoặc.
 ```php
 'middleware' => ['role:admin|root']
 ```
 
-To emulate *AND* functionality just use multiple instances of middleware
+Để sử dụng bộ lọc  *AND* với nhiều quyền hạn cần kiểm tra phân luồng :
+
 ```php
 'middleware' => ['permission:owner', 'permission:writer']
 ```
 
-For more complex situations use `ability` middleware which accepts 3 parameters: roles, permissions, validate_all
+Đối với các tình huống phức tạp hơn sử dụng `ability` middleware mà chấp nhận 3 tham số: roles, permissions,  validate_all
 ```php
 'middleware' => ['ability:admin|owner,create-post|edit-user,true']
 ```
 
 ### Short syntax route filter
 
-To filter a route by permission or role you can call the following in your `app/Http/routes.php`:
+Để lọc một tuyến đường bởi sự cho phép hoặc vai trò bạn có thể gọi   `app/Http/routes.php`:
 
 ```php
-// only users with roles that have the 'manage_posts' permission will be able to access any route within admin/post
+// áp dụng với user có quyền  'manage_posts' có thể truy cập vào bất cứ url :  admin/post
+
 Entrust::routeNeedsPermission('admin/post*', 'create-post');
 
-// only owners will have access to routes within admin/advanced
+// Áp dụng với user có vai trò là chủ nhân owner được phép truy cập url :  admin/advanced
 Entrust::routeNeedsRole('admin/advanced*', 'owner');
 
-// optionally the second parameter can be an array of permissions or roles
-// user would need to match all roles or permissions for that route
+// áp dụng 2 trong 1 tùy chọn tham số thứ hai có thể là một mảng của quyền hoặc các vai trò
+// Người dùng sẽ cần phải phù hợp với tất cả các vai trò hay quyền để truy cập tuyến đường đó :
+
 Entrust::routeNeedsPermission('admin/post*', array('create-post', 'edit-comment'));
 Entrust::routeNeedsRole('admin/advanced*', array('owner','writer'));
 ```
 
-Both of these methods accept a third parameter.
-If the third parameter is null then the return of a prohibited access will be `App::abort(403)`, otherwise the third parameter will be returned.
-So you can use it like:
+Cả hai phương pháp chấp nhận một tham số thứ ba.
+Nếu tham số thứ ba là null thì sự trở lại của một truy cập bị cấm. 
+một kết quả trả về là thông báo lỗi   `App::abort(403)`, nếu có tham số thứ 3 sẽ được trả lại lên bạn có thể áp dụng 
+nó để chuyển hướng nếu user không có quyền Redirect::to('/home' : 
 
 ```php
 Entrust::routeNeedsRole('admin/advanced*', 'owner', Redirect::to('/home'));
 ```
 
-Furthermore both of these methods accept a fourth parameter.
-It defaults to true and checks all roles/permissions given.
-If you set it to false, the function will only fail if all roles/permissions fail for that user.
-Useful for admin applications where you want to allow access for multiple groups.
+Cả hai phương pháp cũng áp dụng một tham số thứ 4.
+Nó mặc định là true và kiểm tra tất cả các vai trò / quyền nhất định. 
+
+Bạn có thể đặt nó là false. Các phương pháp sẽ áp dụng các chức năng sẽ chỉ thất bại return false khi tất cả các , the function will roles/permissions vai trò và quyền hạn không có người dùng đó.
+
+Hữu ích cho các ứng dụng quản trị mà bạn muốn cho phép truy cập cho nhóm groups.
 
 ```php
-// if a user has 'create-post', 'edit-comment', or both they will have access
+// nếu một user có  quyền 'create-post', 'edit-comment', một trong hai hoặc cả 2 họ sẽ có quyền truy cập url. 
+
 Entrust::routeNeedsPermission('admin/post*', array('create-post', 'edit-comment'), null, false);
 
-// if a user is a member of 'owner', 'writer', or both they will have access
+// nếu người dùng có vai trò là một trong hai 'owner', 'writer',hoặc cả hai họ sẽ có quyền truy cập tuyến đường url.
+
 Entrust::routeNeedsRole('admin/advanced*', array('owner','writer'), null, false);
 
-// if a user is a member of 'owner', 'writer', or both, or user has 'create-post', 'edit-comment' they will have access
-// if the 4th parameter is true then the user must be a member of Role and must have Permission
+// nếu người dùng có vai trò là một hoặc cả  2 nếu đúng là  'owner', 'writer', hoặc  user có 1 trong các quyền hạn phù hợp 'create-post', 'edit-comment' thì họ có quyền truy cập url.
+
+
+// nếu tham số thứ 4 là true thì người dùng user phải có vai trò và cả quyền hạn đúng với tất cả mới được truy cập url : 
 Entrust::routeNeedsRoleOrPermission(
     'admin/advanced*',
     array('owner', 'writer'),
@@ -470,70 +508,71 @@ Entrust::routeNeedsRoleOrPermission(
 
 ### Route filter
 
-Entrust roles/permissions can be used in filters by simply using the `can` and `hasRole` methods from within the Facade:
+Entrust roles/permissions có thể được sử dụng trong bộ lọc bằng cách đơn giản sử dụng method Facade `can` và  `hasRole`:
 
 ```php
 Route::filter('manage_posts', function()
 {
-    // check the current user
+    // kiểm tra người sử dụng hiện tại
     if (!Entrust::can('create-post')) {
         return Redirect::to('admin');
     }
 });
 
-// only users with roles that have the 'manage_posts' permission will be able to access any admin/post route
+// khi nào user có quyền hạn 'manage_posts' mới có thể truy cập tuyến đường admin/post
 Route::when('admin/post*', 'manage_posts');
 ```
 
-Using a filter to check for a role:
+Sử dụng một bộ lọc kiểm tra một vai trò `role`:
 
 ```php
 Route::filter('owner_role', function()
 {
-    // check the current user
+    // kiểm tra người sử dụng hiện tại
     if (!Entrust::hasRole('Owner')) {
         App::abort(403);
     }
 });
 
-// only owners will have access to routes within admin/advanced
+// chỉ  owners  sẽ có quyền truy cập đến tất cả các tuyến đường admin/advanced
 Route::when('admin/advanced*', 'owner_role');
 ```
 
-As you can see `Entrust::hasRole()` and `Entrust::can()` checks if the user is logged in, and then if he or she has the role or permission.
-If the user is not logged the return will also be `false`.
+Bạn có thể thấy  `Entrust::hasRole()` và  `Entrust::can()` kiểm tra nếu người dùng đã logged in, và sau đó nếu người đó có vai trò `role` hoặc  `permission`.
+
+Nếu người dùng không đăng nhập tất cả trở lại sẽ là  `false`.
 
 ## Troubleshooting
 
-If you encounter an error when doing the migration that looks like:
+# Sử lý lỗi 
+Nếu bạn gặp một lỗi khi thực hiện việc chuyển đổi :
 
 ```
 SQLSTATE[HY000]: General error: 1005 Can't create table 'laravelbootstrapstarter.#sql-42c_f8' (errno: 150)
     (SQL: alter table `role_user` add constraint role_user_user_id_foreign foreign key (`user_id`)
     references `users` (`id`)) (Bindings: array ())
 ```
+Sau đó, nó có khả năng rằng các `id` trong bảng user của bạn không phù hợp với các `user_id` cột trong `role_user`
+Hãy chắc chắn rằng cả hai đều là `INT(10)`.
 
-Then it's likely that the `id` column in your user table does not match the `user_id` column in `role_user`.
-Make sure both are `INT(10)`.
-
-When trying to use the EntrustUserTrait methods, you encounter the error which looks like
+Khi cố gắng sử dụng các phương pháp Entrust UserTrait, bạn gặp các lỗi mà trông giống như
 
     Class name must be a valid object or a string
 
-then probably you don't have published Entrust assets or something went wrong when you did it.
-First of all check that you have the `entrust.php` file in your `app/config` directory.
-If you don't, then try `php artisan vendor:publish` and, if it does not appear, manually copy the `/vendor/zizaco/entrust/src/config/config.php` file in your config directory and rename it `entrust.php`.
+có thể bạn không có công bố tài sản Entrust hoặc một cái gì đó đã đi sai khi bạn php artisan vendor:publish đã làm điều đó.
+Trước hết kiểm tra xem bạn có `entrust.php` file trong thư mục `app/config`
+Nếu bạn không thấy nó, sau đó thử `php artisan vendor:publish` và , nếu nó không xuất hiện, tự sao chép  `/vendor/zizaco/entrust/src/config/config.php` tập tin trong thư mục config của bạn và đổi tên nó thành `entrust.php`.
 
 ## License
 
-Entrust is free software distributed under the terms of the MIT license.
+Entrust là phần mềm miễn phí được phân phối theo các điều khoản của giấy phép MIT.
 
 ## Contribution guidelines
 
-Support follows PSR-1 and PSR-4 PHP coding standards, and semantic versioning.
+Hỗ trợ sau PSR-1 và PSR-4 PHP tiêu chuẩn mã hóa, và phiên bản ngữ nghĩa.
 
-Please report any issue you find in the issues page.  
-Pull requests are welcome.
+Hãy báo cáo bất kỳ vấn đề bạn tìm thấy trong các trang vấn đề.
+yêu cầu kéo được chào đón.
 
 
 ### fixError 
