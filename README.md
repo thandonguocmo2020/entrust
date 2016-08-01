@@ -90,10 +90,10 @@ php artisan migrate
 ```
 
 Sau đó các bảng mới sẽ có mặt :
-- `roles` &mdash; bảng Nhóm quyền vài trò roles
-- `permissions` &mdash; Bảng chứa Quyền hạn cụ thể
-- `role_user` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa roles và  users
-- `permission_role` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa roles và  permissions
+- `roles` &mdash; BẢNG CHỨA VAI TRÒ CỦA NGƯỜI DÙNG TRÊN HỆ THỐNG. VÍ DỤ USER HIỆN TẠI LÀ :. "admin","Chủ dự án", "Nhân viên công ty"..v.v
+- `permissions` &mdash; CHỨA THÔNG TIN VỀ QUYỀN HẠN VỚI CÁC LAYOUT TRONG HỆ THỐNG VÍ DỤ NGƯỜI DÙNG LÀ CHỦ DỰ ÁN CÓ QUYỀN.Thêm - Sửa Xóa.  ví dụ "create-post","edit-user"..v.v. phù hợp từng vai trò sẽ có quyền phù hợp.
+- `role_user` &mdash; Chứa [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa người sử dụng và vai trò của họ trên hệ thống. roles và  users
+- `permission_role` &mdash; Chứa [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa vai trò và quyền hạn phù hợp nó.
 
 ### Models
 
@@ -120,6 +120,7 @@ Ngoài ra cả 2 colum `display_name` và `description` là tùy chọn; nó có
 
 #### Permission
 
+Permission Chứa Quyền hạn cụ thể thêm sửa xóa layout.
 Tạo ra một Permission model file trong  `app/models/Permission.php` để sử dụng trong ví dụ :
 
 ```php
@@ -132,16 +133,16 @@ class Permission extends EntrustPermission
 }
 ```
 
-The `Permission` model has the same three attributes as the `Role`:
-- `name` &mdash; Unique name for the permission, used for looking up permission information in the application layer. For example: "create-post", "edit-user", "post-payment", "mailing-list-subscribe".
-- `display_name` &mdash; Human readable name for the permission. Not necessarily unique and optional. For example "Create Posts", "Edit Users", "Post Payments", "Subscribe to mailing list".
-- `description` &mdash; A more detailed explanation of the Permission.
+Trong `Permission` model có các thuộc tính giống như  `Role`:
+- `name` &mdash; name là định danh duy nhất, sử dụng để tìm kiếm sử dụng phù hợp với các layout ứng dụng. ví dụ : "create-post", "edit-user", "post-payment", "mailing-list-subscribe".
+- `display_name` &mdash;Tên mà người sử dụng đọc được ví dụ về quyền của họ. quyền "Create Posts", "Edit Users", "Post Payments", "Subscribe to mailing list".
+- `description` &mdash; Chứa mô tả về thông tin cụ thể của quyền hạn
 
 In general, it may be helpful to think of the last two attributes in the form of a sentence: "The permission `display_name` allows a user to `description`."
 
 #### User
 
-Next, use the `EntrustUserTrait` trait in your existing `User` model. For example:
+Tiếp theo, sử dụng  `EntrustUserTrait` trait trong  `User` model hiện có của bạn. ví dụ:
 
 ```php
 <?php
@@ -150,37 +151,43 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Eloquent
 {
-    use EntrustUserTrait; // add this trait to your user model
+    use EntrustUserTrait; // thêm đặc điểm này để model user sử dụng
 
     ...
 }
 ```
 
-This will enable the relation with `Role` and add the following methods `roles()`, `hasRole($name)`, `can($permission)`, and `ability($roles, $permissions, $options)` within your `User` model.
+Điều này sẽ cho phép các mối quan hệ với `Role` và thêm các phương thức sau đây  `function roles()`,  `function hasRole($name)`, `function can($permission)`, và  `function ability($roles, $permissions, $options)` trong  `User` model của bạn.
 
-Don't forget to dump composer autoload
+Cuối cùng chạy lệnh  composer autoload :
 
 ```bash
 composer dump-autoload
 ```
 
-**And you are ready to go.**
+**Và bạn đã sẵn sàng để đi tiếp.**
 
 #### Soft Deleting
 
-The default migration takes advantage of `onDelete('cascade')` clauses within the pivot tables to remove relations when a parent record is deleted. If for some reason you cannot use cascading deletes in your database, the EntrustRole and EntrustPermission classes, and the HasRole trait include event listeners to manually delete records in relevant pivot tables. In the interest of not accidentally deleting data, the event listeners will **not** delete pivot data if the model uses soft deleting. However, due to limitations in Laravel's event listeners, there is no way to distinguish between a call to `delete()` versus a call to `forceDelete()`. For this reason, **before you force delete a model, you must manually delete any of the relationship data** (unless your pivot tables uses cascading deletes). For example:
+Theo mặc định migration có thể sử dụng  `onDelete('cascade')` dùng để xóa các bản ghi mà có mối quan hệ với các bản ghi cha mẹ "parent" đã bị xóa. nếu vì một lý do nào đó cơ sở dữ liệu của bạn không thể sử dụng  cascading deletes,
+
+Các class EntrustRole và EntrustPermission ,và HasRole trait nạp vào một event listeners nắng nghe  sự kiện để xóa các bản ghi trong các bảng liên quan. Nếu trong các trường hợp bạn không phụ thuộc dữ liệu bị xóa. các event listeners sẽ không xóa dữ liệu liên tục khi bạn sử dụng soft deleting
+
+In the interest of not accidentally deleting data, the event listeners will **not** delete pivot data if the model uses soft deleting.
+Tuy nhiên do hạn chế về event listeners. 
+However, due to limitations in Laravel's event listeners, không có cách nào để phân biệt một cuộc gọi function `delete()` so với call `forceDelete()`. Vì lý do này, **Trước khi bạn bắt buộc  delete 1 model, bạn phải tự xóa bất kỳ dữ liệu quan hệ** (ngoại trừ khi bạn sử dụng  bảng có cột chứa cascading deletes"
 
 ```php
-$role = Role::findOrFail(1); // Pull back a given role
+$role = Role::findOrFail(1); // lấy vai trò của một id nhất định
 
-// Regular Delete
-$role->delete(); // This will work no matter what
+// xóa liên tục cùng các dữ liệu có quan hệ
+$role->delete(); // Điều này sẽ làm việc không có vấn đề gì
 
-// Force Delete
-$role->users()->sync([]); // Delete relationship data
-$role->perms()->sync([]); // Delete relationship data
+// Băt buộc Delete
+$role->users()->sync([]); // Xóa dữ liệu con có quan hệ của users
+$role->perms()->sync([]); // xóa dữ liệu con có quan hệ của perms
 
-$role->forceDelete(); // Now force delete will work regardless of whether the pivot table has cascading delete
+$role->forceDelete(); // bắt buộc xóa bất kể các có cascading delete không cho phép xóa. "cascading delete" yêu cầu xóa các dữ liệu liên quan trước khi xóa bản ghi."
 ```
 
 ## Usage
