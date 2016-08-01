@@ -7,7 +7,7 @@
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cc4af966-809b-4fbc-b8b2-bb2850e6711e/small.png)](https://insight.sensiolabs.com/projects/cc4af966-809b-4fbc-b8b2-bb2850e6711e)
 
-Entrust is a succinct and flexible way to add Role-based Permissions to **Laravel 5**.
+Entrust là một cách gọn gàng và linh hoạt để thêm vai trò người dùng  Role-based và quyền hạn trong  **Laravel 5**.
 
 If you are looking for the Laravel 4 version, take a look [Branch 1.0](https://github.com/Zizaco/entrust/tree/1.0). It
 contains the latest entrust version for Laravel 4.
@@ -111,8 +111,8 @@ class Role extends EntrustRole
 }
 ```
 
-File `Role` model có ba thuộc tính chính:
-- `name` &mdash; Tên là định danh duy nhất Unique name có trong vai trò Role, thường được sử dụng để phân luồng trong ứng dụng các layer. Ví dụ: "admin", "chủ nhân", "Nhân viên".
+File vai trò `Role` model có ba thuộc tính chính:
+- `name` &mdash; tên vai trò là định danh duy nhất. Mô tả người dùng hiện tại là ai trên hệ thống . Ví dụ: "admin", "chủ nhân", "Nhân viên".
 - `display_name` &mdash; tên có thể đọc để hiểu được không nhất thiết là duy nhât nó là tùy chọn ví dụ: "User Administrator", "Chủ dự án", "Nhân viên công ty".
 - `description` &mdash; Một lời giải thích chi tiết hơn về những gì vai trò.
 
@@ -120,7 +120,7 @@ Ngoài ra cả 2 colum `display_name` và `description` là tùy chọn; nó có
 
 #### Permission
 
-Permission Chứa Quyền hạn cụ thể thêm sửa xóa layout.
+Bảng chứa quyền hạn của vai trò name. Các chức năng phù hợp của vai trò tương ứng để cho phép sử dụng các layout phân luồng phù hợp.
 Tạo ra một Permission model file trong  `app/models/Permission.php` để sử dụng trong ví dụ :
 
 ```php
@@ -133,16 +133,16 @@ class Permission extends EntrustPermission
 }
 ```
 
-Trong `Permission` model có các thuộc tính giống như  `Role`:
-- `name` &mdash; name là định danh duy nhất, sử dụng để tìm kiếm sử dụng phù hợp với các layout ứng dụng. ví dụ : "create-post", "edit-user", "post-payment", "mailing-list-subscribe".
-- `display_name` &mdash;Tên mà người sử dụng đọc được ví dụ về quyền của họ. quyền "Create Posts", "Edit Users", "Post Payments", "Subscribe to mailing list".
+Trong quyền hạn `Permission` model có các thuộc tính giống như  `Role`:
+- `name` &mdash; name là định danh duy nhất, để cho biết các quyền hạn phù hợp với vai trò  tương ứng. ví dụ : "create-post", "edit-user", "post-payment", "mailing-list-subscribe".
+- `display_name` &mdash; Tên mà người sử dụng đọc được về quyền của họ. ví dụ  "Create Posts", "Edit Users", "Post Payments", "Subscribe to mailing list".
 - `description` &mdash; Chứa mô tả về thông tin cụ thể của quyền hạn
 
 In general, it may be helpful to think of the last two attributes in the form of a sentence: "The permission `display_name` allows a user to `description`."
 
 #### User
 
-Tiếp theo, sử dụng  `EntrustUserTrait` trait trong  `User` model hiện có của bạn. ví dụ:
+Tiếp theo, sử dụng  `EntrustUserTrait` trait trong  model `User` hiện có của bạn. để kết nối người dùng và gán vai trò ví dụ:
 
 ```php
 <?php
@@ -173,9 +173,7 @@ Theo mặc định migration có thể sử dụng  `onDelete('cascade')` dùng 
 
 Các class EntrustRole và EntrustPermission ,và HasRole trait nạp vào một event listeners nắng nghe  sự kiện để xóa các bản ghi trong các bảng liên quan. Nếu trong các trường hợp bạn không phụ thuộc dữ liệu bị xóa. các event listeners sẽ không xóa dữ liệu liên tục khi bạn sử dụng soft deleting
 
-In the interest of not accidentally deleting data, the event listeners will **not** delete pivot data if the model uses soft deleting.
-Tuy nhiên do hạn chế về event listeners. 
-However, due to limitations in Laravel's event listeners, không có cách nào để phân biệt một cuộc gọi function `delete()` so với call `forceDelete()`. Vì lý do này, **Trước khi bạn bắt buộc  delete 1 model, bạn phải tự xóa bất kỳ dữ liệu quan hệ** (ngoại trừ khi bạn sử dụng  bảng có cột chứa cascading deletes"
+Tuy nhiên do hạn chế về event listeners, không có cách nào để phân biệt một cuộc gọi function `delete()` so với cuộc gọi `forceDelete()`. Vì lý do này, **Trước khi bạn bắt buộc  delete 1 dữ liệu cha từ model, bạn phải tự xóa bất kỳ dữ liệu quan hệ con** (ngoại trừ khi bạn sử dụng  bảng có cột chứa cascading deletes"
 
 ```php
 $role = Role::findOrFail(1); // lấy vai trò của một id nhất định
@@ -192,37 +190,42 @@ $role->forceDelete(); // bắt buộc xóa bất kể các có cascading delete 
 
 ## Usage
 
+Sử dụng 
+
 ### Concepts
-Let's start by creating the following `Role`s and `Permission`s:
+
+Các khái niệm
+
+Hãy bắt đầu bằng cách tạo ra những điều sau đây vai trò và phân quyền user. `Role`s and `Permission`s:
 
 ```php
 $owner = new Role();
 $owner->name         = 'owner';
-$owner->display_name = 'Project Owner'; // optional
-$owner->description  = 'User is the owner of a given project'; // optional
+$owner->display_name = 'Project Owner'; // tùy chọn có hoặc không
+$owner->description  = 'User is the owner of a given project'; // tùy chọn có hoặc không
 $owner->save();
 
 $admin = new Role();
 $admin->name         = 'admin';
-$admin->display_name = 'User Administrator'; // optional
-$admin->description  = 'User is allowed to manage and edit other users'; // optional
+$admin->display_name = 'User Administrator'; // tùy chọn có hoặc không
+$admin->description  = 'User is allowed to manage and edit other users'; // tùy chọn có hoặc không
 $admin->save();
 ```
+Tiếp theo, với cả hai vai trò tạo ra chúng ta hãy gán cho người sử dụng user.
 
-Next, with both roles created let's assign them to the users.
-Thanks to the `HasRole` trait this is as easy as:
+Nhờ `HasRole` trait  điều này sẽ thực hiện dễ dàng giống như :
 
 ```php
 $user = User::where('username', '=', 'michele')->first();
 
-// role attach alias
-$user->attachRole($admin); // parameter can be an Role object, array, or id
+// gán vai trò 
+$user->attachRole($admin); // tham số có thể là một đối tượng Role object, array mảng, hoặc id
 
-// or eloquent's original technique
-$user->roles()->attach($admin->id); // id only
+// hoặc sử dụng kĩ thuật eloquent's 
+$user->roles()->attach($admin->id); // chỉ cần id
 ```
 
-Now we just need to add permissions to those Roles:
+Bây giờ chúng ta chỉ cần thêm quyền cho các object vai trò `Roles`.
 
 ```php
 $createPost = new Permission();
@@ -245,6 +248,9 @@ $admin->attachPermission($createPost);
 $owner->attachPermissions(array($createPost, $editUser));
 // equivalent to $owner->perms()->sync(array($createPost->id, $editUser->id));
 ```
+
+
+// như vậy là vai trò được gán cho user và user sẽ có các quyền.... 
 
 #### Checking for Roles & Permissions
 
