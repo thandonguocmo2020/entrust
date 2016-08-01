@@ -14,91 +14,92 @@ contains the latest entrust version for Laravel 4.
 
 ## Contents
 
-- [Installation](#installation)
-- [Configuration](#configuration)
-    - [User relation to roles](#user-relation-to-roles)
+- [Cài đặt](#installation)
+- [Cấu hình](#configuration)
+    - [Sử dụng mối quan hệ từ roles](#user-relation-to-roles)
     - [Models](#models)
         - [Role](#role)
         - [Permission](#permission)
-        - [User](#user)
-        - [Soft Deleting](#soft-deleting)
-- [Usage](#usage)
-    - [Concepts](#concepts)
-        - [Checking for Roles & Permissions](#checking-for-roles--permissions)
-        - [User ability](#user-ability)
+        - [Người sử dụng User](#user)
+        - [Xóa  Deleting](#soft-deleting)
+- [Sử dụng](#usage)
+    - [Các khái niệm](#concepts)
+        - [Kiểm tra Vai trò & Quyền - Checking for Roles & Permissions](#checking-for-roles--permissions)
+        - [Tư cách người dùng](#user-ability)
     - [Blade templates](#blade-templates)
     - [Middleware](#middleware)
-    - [Short syntax route filter](#short-syntax-route-filter)
+    - [Cú pháp ngắn gọn cho bộ lọc route ](#short-syntax-route-filter)
     - [Route filter](#route-filter)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-- [Contribution guidelines](#contribution-guidelines)
-- [Additional information](#additional-information)
+- [Xử lý sự cố](#troubleshooting)
+- [giấy phép](#license)
+- [hướng dẫn đóng góp](#contribution-guidelines)
+- [Thông tin thêm](#additional-information)
 
 ## Installation
 
-In order to install Laravel 5 Entrust, just add
+Để cài đặt Laravel 5 Entrust, chỉ cần thêm
 
     "zizaco/entrust": "5.2.x-dev"
 
-to your composer.json. Then run `composer install` or `composer update`.
+từ  composer.json của bạn. Chạy lệnh `composer install` hoặc `composer update`.
 
-or you can run the `composer require` command from your terminal:
+Hoặc bạn có thể chạy lệnh yêu cầu gói  bằng  `composer require` từ terminal của bạn:
     
     composer require zizaco/entrust:5.2.x-dev
     
-Then in your `config/app.php` add
+Trong file `config/app.php` thêm mới
 ```php
     Zizaco\Entrust\EntrustServiceProvider::class,
 ```
-in the `providers` array and
+hãy thêm nó trong `providers` mảng và 
 ```php
     'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
 ```
-to the `aliases` array.
+trong  `aliases` mảng.
 
-If you are going to use [Middleware](#middleware) (requires Laravel 5.1 or later) you also need to add
+Bạn có thể sử dụng Middleware  [Middleware](#middleware) (yêu cầu từ Laravel 5.1 trở về sau) bạn cũng cần phải thêm
 ```php
     'role' => \Zizaco\Entrust\Middleware\EntrustRole::class,
     'permission' => \Zizaco\Entrust\Middleware\EntrustPermission::class,
     'ability' => \Zizaco\Entrust\Middleware\EntrustAbility::class,
 ```
-to `routeMiddleware` array in `app/Http/Kernel.php`.
+trong `routeMiddleware` mảng tại đường dẫn `app/Http/Kernel.php`.
 
 ## Configuration
 
-Set the property values in the `config/auth.php`.
-These values will be used by entrust to refer to the correct user table and model.
+thiết lập các giá trị tài sản property values trong `config/auth.php`.
+Những giá trị này sẽ được sử dụng bởi ủy thác để tham khảo bảng use và model.
 
-You can also publish the configuration for this package to further customize table names and model namespaces.  
-Just use `php artisan vendor:publish` and a `entrust.php` file will be created in your app/config directory.
+
+Bạn cũng có thể xuất bản các cấu hình cho các gói này để tùy chỉnh thêm các tên bảng và không gian tên mô hình.
+Sử dụng câu lệnh `php artisan vendor:publish` và 1 `entrust.php` file mở rộng được tại ra tại app/config directory.
 
 ### User relation to roles
 
-Now generate the Entrust migration:
+Bây giờ tạo ra một migration tạo cấu trúc bảng  Entrust migration bằng lệnh:
 
 ```bash
 php artisan entrust:migration
 ```
 
-It will generate the `<timestamp>_entrust_setup_tables.php` migration.
-You may now run it with the artisan migrate command:
+Nó sẽ tạo ra `<timestamp>_entrust_setup_tables.php` file migration.
+Bây giờ bạn có thể chạy nó với lệnh :
 
 ```bash
 php artisan migrate
 ```
 
-After the migration, four new tables will be present:
-- `roles` &mdash; stores role records
-- `permissions` &mdash; stores permission records
-- `role_user` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) relations between roles and users
-- `permission_role` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) relations between roles and permissions
+Sau đó các bảng mới sẽ có mặt :
+- `roles` &mdash; bảng Nhóm quyền vài trò roles
+- `permissions` &mdash; Bảng chứa Quyền hạn cụ thể
+- `role_user` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa roles và  users
+- `permission_role` &mdash; stores [many-to-many](http://laravel.com/docs/4.2/eloquent#many-to-many) quan hệ giữa roles và  permissions
 
 ### Models
 
 #### Role
 
-Create a Role model inside `app/models/Role.php` using the following example:
+Tạo ra một Model Role `app/models/Role.php` để áp dụng trong ví dụ :
 
 ```php
 <?php namespace App;
@@ -110,16 +111,16 @@ class Role extends EntrustRole
 }
 ```
 
-The `Role` model has three main attributes:
-- `name` &mdash; Unique name for the Role, used for looking up role information in the application layer. For example: "admin", "owner", "employee".
-- `display_name` &mdash; Human readable name for the Role. Not necessarily unique and optional. For example: "User Administrator", "Project Owner", "Widget  Co. Employee".
-- `description` &mdash; A more detailed explanation of what the Role does. Also optional.
+File `Role` model có ba thuộc tính chính:
+- `name` &mdash; Tên là định danh duy nhất Unique name có trong vai trò Role, thường được sử dụng để phân luồng trong ứng dụng các layer. Ví dụ: "admin", "chủ nhân", "Nhân viên".
+- `display_name` &mdash; tên có thể đọc để hiểu được không nhất thiết là duy nhât nó là tùy chọn ví dụ: "User Administrator", "Chủ dự án", "Nhân viên công ty".
+- `description` &mdash; Một lời giải thích chi tiết hơn về những gì vai trò.
 
-Both `display_name` and `description` are optional; their fields are nullable in the database.
+Ngoài ra cả 2 colum `display_name` và `description` là tùy chọn; nó có thể chứa nullable trong cơ sở dữ liệu.
 
 #### Permission
 
-Create a Permission model inside `app/models/Permission.php` using the following example:
+Tạo ra một Permission model file trong  `app/models/Permission.php` để sử dụng trong ví dụ :
 
 ```php
 <?php namespace App;
