@@ -534,3 +534,25 @@ Support follows PSR-1 and PSR-4 PHP coding standards, and semantic versioning.
 
 Please report any issue you find in the issues page.  
 Pull requests are welcome.
+
+
+### fixError 
+
+.env file thay đổi 
+
+CACHE_DRIVER=file thành CACHE_DRIVER=array
+
+config/auth.php thay đổi providers key thành
+
+``'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\User::class,
+            'table' => 'users',
+        ],
+],``
+
+Thay đổi `vendor\zizaco\entrust\src\Entrust\Traits\EntrustRoleTrait` dòng 51 thành 
+
+`return $this->belongsToMany(Config::get('auth.providers.users.model'), Config::get('entrust.role_user_table'),Config::get('entrust.role_foreign_key'),Config::get('entrust.user_foreign_key'));`
+ 
