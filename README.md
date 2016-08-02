@@ -179,6 +179,8 @@ composer dump-autoload
 
 #### Soft Deleting
 
+Xóa mềm.
+
 Theo mặc định migration có thể sử dụng  `onDelete('cascade')` dùng để xóa các bản ghi mà có mối quan hệ với các bản ghi cha mẹ "parent" đã bị xóa. nếu vì một lý do nào đó cơ sở dữ liệu của bạn không thể sử dụng  cascading deletes,
 
 Các class EntrustRole và EntrustPermission ,và HasRole trait nạp vào một event listeners nắng nghe  sự kiện để xóa các bản ghi trong các bảng liên quan. Nếu trong các trường hợp bạn không phụ thuộc dữ liệu bị xóa. các event listeners sẽ không xóa dữ liệu liên tục khi bạn sử dụng soft deleting
