@@ -593,13 +593,14 @@ CACHE_DRIVER=file thành CACHE_DRIVER=array
 
 config/auth.php thay đổi providers key thành
 
-``'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\User::class,
-            'table' => 'users',
-        ],
-],``
+`
+'providers' => [ 
+	'users' =>
+	[ 'driver' => 'eloquent',
+	'model' => App\User::class,
+	'table' => 'users', ], 
+	],
+`
 
 Thay đổi `vendor\zizaco\entrust\src\Entrust\Traits\EntrustRoleTrait` dòng 51 thành 
 
