@@ -23,6 +23,7 @@ contains the latest entrust version for Laravel 4.
         - [Permission](#permission)
         - [Người sử dụng User](#user)
         - [Xóa  Deleting](#soft-deleting)
+        - [Cập nhập ]
 - [Sử dụng](#usage)
     - [Các khái niệm - Gán vai trò cho user ](#concepts)
         - [Kiểm tra Vai trò & Quyền - Checking for Roles & Permissions](#checking-for-roles--permissions)
@@ -200,6 +201,25 @@ $role->perms()->sync([]); // xóa dữ liệu con có quan hệ của perms
 
 $role->forceDelete(); // bắt buộc xóa bất kể các có cascading delete không cho phép xóa. "cascading delete" yêu cầu xóa các dữ liệu liên quan trước khi xóa bản ghi."
 ```
+
+### update
+
+$user->roles()->sync($roleKeys)
+
+sync() phương pháp này chạy trên một mối quan hệ phương pháp đã được định nghĩa
+
+$roleKeys là khóa role_id có trong bảng trung gian. ví dụ :
+
+`$user = $this->userRepository->find($id)`;
+
+`$user->roles()->sync([$request->role_id])`;
+
+điều này sẽ truy cập vào mối quan hệ nhiều nhiều giữa bảng user và bảng role qua 1 bảng trung gian lưu trữ. 
+
+bảng trung gian ở đây là bảng role_user nó sẽ đồng bộ lại bằng cách tìm user id của nó và và  cập nhập vai trò qua khóa 
+role_id
+
+
 
 ## Usage
 
