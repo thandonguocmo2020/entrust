@@ -14,6 +14,7 @@ contains the latest entrust version for Laravel 4.
 
 ## Contents
 
+
 - [Cài đặt](#installation)
 - [Cấu hình](#configuration)
     - [Sử dụng mối quan hệ từ roles](#user-relation-to-roles)
@@ -23,7 +24,7 @@ contains the latest entrust version for Laravel 4.
         - [Người sử dụng User](#user)
         - [Xóa  Deleting](#soft-deleting)
 - [Sử dụng](#usage)
-    - [Các khái niệm](#concepts)
+    - [Các khái niệm - Gán vai trò cho user ](#concepts)
         - [Kiểm tra Vai trò & Quyền - Checking for Roles & Permissions](#checking-for-roles--permissions)
         - [Tư cách người dùng](#user-ability)
     - [Blade templates](#blade-templates)
