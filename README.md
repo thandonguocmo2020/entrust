@@ -605,4 +605,18 @@ config/auth.php thay đổi providers key thành
 Thay đổi `vendor\zizaco\entrust\src\Entrust\Traits\EntrustRoleTrait` dòng 51 thành 
 
 `return $this->belongsToMany(Config::get('auth.providers.users.model'), Config::get('entrust.role_user_table'),Config::get('entrust.role_foreign_key'),Config::get('entrust.user_foreign_key'));`
+
+dòng 67 trong `vendor\zizaco\entrust\src\Entrust\Traits\EntrustUserTrait`
+
+`Config::get('auth.model')` thay bằng
+
+ static::deleting(function($user) {
+            if (!method_exists(Config::get('auth.providers.users.model'), 'bootSoftDeletes')) {
+                $user->roles()->sync([]);
+            }
+
+            return true;
+        });
+
+
  
