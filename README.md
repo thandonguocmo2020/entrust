@@ -134,15 +134,14 @@ Ngoài ra cả 2 colum `display_name` và `description` là tùy chọn; nó có
 
 Bảng chứa quyền hạn của vai trò name. Các chức năng phù hợp của vai trò tương ứng để cho phép sử dụng các layout phân luồng phù hợp.
 Tạo ra một Permission model file trong  `app/models/Permission.php` để sử dụng trong ví dụ :
-
-```php
-<?php namespace App;
-
-use Zizaco\Entrust\EntrustPermission;
-
-class Permission extends EntrustPermission
-{
-}
+```
+	<?php namespace App;
+	
+	use Zizaco\Entrust\EntrustPermission;
+	
+	class Permission extends EntrustPermission
+	{
+	}
 ```
 
 Trong quyền hạn `Permission` model có các thuộc tính giống như  `Role`:
@@ -156,17 +155,14 @@ In general, it may be helpful to think of the last two attributes in the form of
 
 Tiếp theo, sử dụng  `EntrustUserTrait` trait trong  model `User` hiện có của bạn. để kết nối người dùng và gán vai trò ví dụ:
 
-```php
-<?php
-
-use Zizaco\Entrust\Traits\EntrustUserTrait;
-
-class User extends Eloquent
-{
-    use EntrustUserTrait; // thêm đặc điểm này để model user sử dụng
-
-    ...
-}
+```
+	use Eloquent as Model;
+	use Zizaco\Entrust\Traits\EntrustUserTrait;
+	class User extends Model
+	{
+		 use EntrustUserTrait;
+      }
+	
 ```
 
 Điều này sẽ cho phép các mối quan hệ với `Role` và thêm các phương thức sau đây  `function roles()`,  `function hasRole($name)`, `function can($permission)`, và  `function ability($roles, $permissions, $options)` trong  `User` model của bạn.
