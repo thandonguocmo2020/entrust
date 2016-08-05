@@ -356,9 +356,9 @@ $user->can("*_users"); // true
 
 #### User ability
 
-Khả năng của người dùng
+định nghĩa quyền hạn của người dùng
 
-Nhiều kiểm tra sử dụng tiên tiến phương pháp  function 'ability`
+Nhiều kiểm tra sử dụng tiên tiến phương pháp  function 'ability` so sánh một phù hợp với 1 quyền hạn "khả năng". xảy ra return true hoặc false.
 
 Nó cần có 3 tham số trong để làm việc (roles, permissions, options):
 
