@@ -625,21 +625,44 @@ config/auth.php thay đổi providers key thành
 	],
 `
 
+Sửa lỗi : 
+
+	`FatalErrorException in Model.php line 956:
+	Class name must be a valid object or a string`
+
 Thay đổi `vendor\zizaco\entrust\src\Entrust\Traits\EntrustRoleTrait` dòng 51 thành 
 
 `return $this->belongsToMany(Config::get('auth.providers.users.model'), Config::get('entrust.role_user_table'),Config::get('entrust.role_foreign_key'),Config::get('entrust.user_foreign_key'));`
 
 dòng 67 trong `vendor\zizaco\entrust\src\Entrust\Traits\EntrustUserTrait`
 
-`Config::get('auth.model')` thay bằng
+		`Config::get('auth.model')`
 
- static::deleting(function($user) {
-            if (!method_exists(Config::get('auth.providers.users.model'), 'bootSoftDeletes')) {
-                $user->roles()->sync([]);
-            }
+	thay bằng
 
-            return true;
-        });
+		 static::deleting(function($user) {
+			            if (!method_exists(Config::get('auth.providers.users.model'), 'bootSoftDeletes')) {
+			                $user->roles()->sync([]);
+			            }
+	            return true;
+	        });
+
+
+
+Sửa lỗi : Class 'App\Permission' not found
+
+vào config/entrust.php sửa 
+
+'role' => bằng nơi chứa file model role của bạn ví dụ của mình để role ở App\Models\Admin\Role 
+
+thì mình sửa App\Role thành App\Models\Admin\Role
+
+`permission` thay đổi tương tự App\Permission thàn nơi chứa model của bạn App\Models\Admin\Permission
+
+
+Sửa lỗi : This cache store does not support tagging.
+
+vào file .env sửa `CACHE_DRIVER = file` thành `CACHE_DRIVER=array`
 
 
  
