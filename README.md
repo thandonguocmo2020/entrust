@@ -16,6 +16,7 @@ contains the latest entrust version for Laravel 4.
 
 
 - [Cài đặt](#installation)
+- [Fix Errors](#fixError)
 - [Cấu hình](#configuration)
     - [Sử dụng mối quan hệ từ roles](#user-relation-to-roles)
     - [Models](#models)
@@ -573,7 +574,7 @@ Nếu người dùng không đăng nhập tất cả trở lại sẽ là  `fals
 
 ## Troubleshooting
 
-# Sử lý lỗi 
+# Xử lý lỗi 
 Nếu bạn gặp một lỗi khi thực hiện việc chuyển đổi :
 
 ```
