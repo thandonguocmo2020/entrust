@@ -608,18 +608,16 @@ yêu cầu kéo được chào đón.
 
 .env file thay đổi 
 
-CACHE_DRIVER=file thành CACHE_DRIVER=array
+	`CACHE_DRIVER=file thành CACHE_DRIVER=array`
 
 config/auth.php thay đổi providers key thành
 
-`
-'providers' => [ 
-	'users' =>
-	[ 'driver' => 'eloquent',
-	'model' => App\User::class,
-	'table' => 'users', ], 
+	'providers' => [ 
+		'users' =>
+		[ 'driver' => 'eloquent',
+		'model' => App\User::class,
+		'table' => 'users', ], 
 	],
-`
 
 Sửa lỗi : 
 
@@ -635,7 +633,7 @@ dòng 67 trong `vendor\zizaco\entrust\src\Entrust\Traits\EntrustUserTrait`
 		`Config::get('auth.model')`
 
 	thay bằng
-
+	
 		 static::deleting(function($user) {
 			            if (!method_exists(Config::get('auth.providers.users.model'), 'bootSoftDeletes')) {
 			                $user->roles()->sync([]);
@@ -664,16 +662,15 @@ Sửa lỗi : Method hasRole không được tìm thấy
 
 Call to undefined method Illuminate\Database\Query\Builder::hasRole()
 
-Vào trong App\User;
+Vào trong App\User nếu bạn cấu hình auth.php là model App\User nếu khác thì vào nơi chứa Class User đó thêm vào cấu trúc ;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Zizaco\Entrust\Traits\EntrustUserTrait;
+	use Illuminate\Foundation\Auth\User as Authenticatable;
+	use Zizaco\Entrust\Traits\EntrustUserTrait;
 
-
-class User extends Authenticatable
-{
-    
-      use EntrustUserTrait;
+	class User extends Authenticatable
+	{
+	    
+	      use EntrustUserTrait;
 
 
 Sửa lỗi :
@@ -686,7 +683,7 @@ Tạo một file 403.blade.php trong views errors để thông báo lỗi
 
 nếu muốn họ quay lại có thể sử dụng thẻ a với nội dung 
 
-<a href="{{ URL::previous() }}"> Trở lại </a>
+`	<a href="{{ URL::previous() }}"> Trở lại </a>`
 
 
 
