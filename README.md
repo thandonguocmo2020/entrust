@@ -604,7 +604,7 @@ Hỗ trợ sau PSR-1 và PSR-4 PHP tiêu chuẩn mã hóa, và phiên bản ng�
 Hãy báo cáo bất kỳ vấn đề bạn tìm thấy trong các trang vấn đề.
 yêu cầu kéo được chào đón.
 
-<a href="fixError"></a>
+<a name="fixError"></a>
 ### fixError 
 
 .env file thay đổi 
