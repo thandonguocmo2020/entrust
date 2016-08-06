@@ -660,5 +660,34 @@ Sửa lỗi : This cache store does not support tagging.
 
 vào file .env sửa `CACHE_DRIVER = file` thành `CACHE_DRIVER=array`
 
+Sửa lỗi : Method hasRole không được tìm thấy 
+
+Call to undefined method Illuminate\Database\Query\Builder::hasRole()
+
+Vào trong App\User;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Zizaco\Entrust\Traits\EntrustUserTrait;
+
+
+class User extends Authenticatable
+{
+    
+      use EntrustUserTrait;
+
+
+Sửa lỗi :
+
+HttpException in Application.php line 905:
+
+Không tìm thấy file hiển thị thông báo lỗi :
+
+Tạo một file 403.blade.php trong views errors để thông báo lỗi 
+
+nếu muốn họ quay lại có thể sử dụng thẻ a với nội dung 
+
+<a href="{{ URL::previous() }}"> Trở lại </a>
+
+
 
  
