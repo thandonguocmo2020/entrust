@@ -63,6 +63,15 @@ class EntrustServiceProvider extends ServiceProvider
         \Blade::directive('role', function($expression) {
             return "<?php if (\\Entrust::hasRole{$expression}) : ?>";
         });
+        
+         \Blade::directive('elseifpermission', function($expression) {
+            return "<?php elseif(\\Entrust::hasRole{$expression}) : ?>";
+        });
+        
+        \Blade::directive('elserole', function($expression) {
+            return "<?php else :  ?>";
+        });
+
 
         \Blade::directive('endrole', function($expression) {
             return "<?php endif; // Entrust::hasRole ?>";
@@ -73,6 +82,15 @@ class EntrustServiceProvider extends ServiceProvider
             return "<?php if (\\Entrust::can{$expression}) : ?>";
         });
 
+         \Blade::directive('elseifpermission', function($expression) {
+            return "<?php elseif(\\Entrust::can{$expression}) :  ?>";
+        });
+        
+        \Blade::directive('elsepermission', function($expression) {
+            return "<?php else :  ?>";
+        });
+
+
         \Blade::directive('endpermission', function($expression) {
             return "<?php endif; // Entrust::can ?>";
         });
@@ -81,6 +99,15 @@ class EntrustServiceProvider extends ServiceProvider
         \Blade::directive('ability', function($expression) {
             return "<?php if (\\Entrust::ability{$expression}) : ?>";
         });
+
+      \Blade::directive('elseifability', function($expression) {
+            return "<?php elseifability(\\Entrust::ability{$expression}) :  ?>";
+        });
+        
+        \Blade::directive('elseability', function($expression) {
+            return "<?php else :  ?>";
+        });
+
 
         \Blade::directive('endability', function($expression) {
             return "<?php endif; // Entrust::ability ?>";
