@@ -193,8 +193,8 @@ $role = Role::findOrFail(1); // lấy vai trò của một id nhất định
 $role->delete(); // Điều này sẽ làm việc không có vấn đề gì
 
 // Băt buộc Delete
-$role->users()->sync([]); // Xóa dữ liệu con có quan hệ của users
-$role->perms()->sync([]); // xóa dữ liệu con có quan hệ của perms
+$role->users()->sync([]); // Xóa dữ liệu con có quan hệ function users
+$role->perms()->sync([]); // xóa dữ liệu con có quan hệ function perms
 
 $role->forceDelete(); // bắt buộc xóa bất kể các có cascading delete không cho phép xóa. "cascading delete" yêu cầu xóa các dữ liệu liên quan trước khi xóa bản ghi."
 ```
