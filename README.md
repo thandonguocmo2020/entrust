@@ -1,4 +1,4 @@
-# ENTRUST (Laravel 5 Package)
+# ENTRUST (Laravel 5.3 Package)
 
 [![Build Status](https://travis-ci.org/Zizaco/entrust.svg)](https://travis-ci.org/Zizaco/entrust)
 [![Version](https://img.shields.io/packagist/v/Zizaco/entrust.svg)](https://packagist.org/packages/zizaco/entrust)
@@ -683,6 +683,13 @@ Không tìm thấy file hiển thị thông báo lỗi :
 Tạo một file 403.blade.php trong views errors để thông báo lỗi 
 
 nếu muốn họ quay lại có thể sử dụng thẻ a với nội dung 
+
+
+Sửa lỗi : syntax error, unexpected ''Administrator'' (T_CONSTANT_ENCAPSED_STRING)
+
+Thay vì sử dụng như trong laravel 5.2  @role('Administrator') 
+
+chuyển thành @role(('Administrator'))
 
 `	<a href="{{ URL::previous() }}"> Trở lại </a>`
 
